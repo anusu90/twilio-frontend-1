@@ -14,6 +14,7 @@ export default function JoinRoom() {
     let TOKEN;
     let myRef = useRef(null)
     let myVideoStreamRef = useRef(null)
+    let remoteStreamRef = useRef(null)
 
     let [roomID, setRoomID] = useState("");
     let history = useHistory();
@@ -67,7 +68,27 @@ export default function JoinRoom() {
                         console.log("yo", track)
                         console.log("now tracks are", track.attach())
                     })
+
                 });
+
+                room.participants.forEach(participant => {
+                    participant.tracks.forEach(publication => {
+                        if (publication.track) {
+                            publication.track.attach(remoteStreamRef.current);
+                            // document.getElementById('remote-media-div').appendChild(publication.track.attach());
+                        }
+                    });
+
+                    participant.on('trackSubscribed', track => {
+                        track.attach(remoteStreamRef.current);
+                        // document.getElementById('remote-media-div').appendChild(track.attach());
+                    });
+
+                });
+
+
+
+
 
 
                 //handle participlant disconnection
@@ -106,6 +127,7 @@ export default function JoinRoom() {
             </div>
             <div>
                 <video ref={myVideoStreamRef} playsInline autoPlay muted></video>
+                <video ref={remoteStreamRef} playsInline autoPlay></video>
             </div>
 
         </>

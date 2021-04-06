@@ -75,12 +75,8 @@ export default function CreateRoom() {
                         video.autoPlay = true;
                         remoteStreamRef.current.appendChild(video)
                         console.log(remoteStreamRef.current)
-
                     })
-
-
                 });
-
 
                 //handle participlant disconnection
                 room.on('participantDisconnected', participant => {
