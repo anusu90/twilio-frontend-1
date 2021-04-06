@@ -11,6 +11,7 @@ import { connect } from 'twilio-video';
 //import context
 
 import { AppContext } from "../context/context"
+import Participant from '../participant/participant';
 
 export default function CreateRoom() {
 
@@ -55,7 +56,7 @@ export default function CreateRoom() {
                 room.on('participantConnected', participant => {
                     console.log(`A remote Participant connected: ${participant}`);
 
-                    setUserList([...room.participants])
+                    setUserList((userList) => [...userList, participant])
 
                     participant.tracks.forEach(publication => {
                         console.log("pub is", publication)
@@ -69,12 +70,8 @@ export default function CreateRoom() {
                     })
 
                     participant.on('trackSubscribed', track => {
-                        console.log("yo", track)
-                        track.attach(remoteStreamRef.current)
-                        let video = track.attach()
-                        video.autoPlay = true;
-                        remoteStreamRef.current.appendChild(video)
-                        console.log(remoteStreamRef.current)
+                        console.log("create-room", track)
+                        // track.attach(remoteStreamRef.current)
                     })
                 });
 
@@ -128,6 +125,12 @@ export default function CreateRoom() {
             </div>
             <div>
                 <video ref={remoteStreamRef} playsInline autoPlay></video>
+            </div>
+
+            <div>
+                {
+                    userList.map(participant => <Participant key={participant.sid} participant={participant} />)
+                }
             </div>
         </>
 

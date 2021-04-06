@@ -4,6 +4,7 @@ import { AppContext } from "../context/context"
 import store from 'storejs';
 import * as Video from 'twilio-video';
 import { connect } from 'twilio-video';
+import Participant from '../participant/participant';
 
 
 export default function JoinRoom() {
@@ -56,6 +57,8 @@ export default function JoinRoom() {
                 room.on('participantConnected', participant => {
                     console.log(`A remote Participant connected: ${participant}`);
 
+                    setUserList((userList) => [...userList, participant])
+
                     participant.tracks.forEach(publication => {
                         console.log(publication)
                         if (publication.isSubscribed) {
@@ -65,22 +68,27 @@ export default function JoinRoom() {
                     })
 
                     participant.on('trackSubscribed', track => {
-                        console.log("yo", track)
+                        console.log("join-room", track)
                         console.log("now tracks are", track.attach())
                     })
 
                 });
 
                 room.participants.forEach(participant => {
+
+                    setUserList((userList) => [...userList, participant])
+
                     participant.tracks.forEach(publication => {
                         if (publication.track) {
-                            publication.track.attach(remoteStreamRef.current);
+                            // publication.track.attach(remoteStreamRef.current);
+                            console.log(publication.track)
                             // document.getElementById('remote-media-div').appendChild(publication.track.attach());
                         }
                     });
 
                     participant.on('trackSubscribed', track => {
-                        track.attach(remoteStreamRef.current);
+                        console.log(track)
+                        // track.attach(remoteStreamRef.current);
                         // document.getElementById('remote-media-div').appendChild(track.attach());
                     });
 
@@ -128,6 +136,12 @@ export default function JoinRoom() {
             <div>
                 <video ref={myVideoStreamRef} playsInline autoPlay muted></video>
                 <video ref={remoteStreamRef} playsInline autoPlay></video>
+            </div>
+
+            <div>
+                {
+                    userList.map(participant => <Participant key={participant.sid} participant={participant} />)
+                }
             </div>
 
         </>
